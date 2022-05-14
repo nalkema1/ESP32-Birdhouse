@@ -1,6 +1,5 @@
 # Custom for this project
 webrepl_cfg.py
-boot.py
 *.ipynb
 
 # Byte-compiled / optimized / DLL files
@@ -142,4 +141,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 8266gp.ipynb
-esp32/esp32-20220117-v1.18.bin
+
+
