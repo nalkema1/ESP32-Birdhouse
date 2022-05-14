@@ -44,6 +44,7 @@ class WifiManager:
 
     def connect(self):
         if self.wlan_sta.isconnected():
+            print('\nAlready Connected! Network information:', self.wlan_sta.ifconfig())
             return
         profiles = self.__ReadProfiles()
         for ssid, *_ in self.wlan_sta.scan():
