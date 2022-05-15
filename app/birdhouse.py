@@ -9,22 +9,24 @@ import binascii
 import os
 path = '/photos'
 motion = False
-
+reboot = False
 dict = {}
 
 def myTime():
     UTC_OFFSET = -4 * 60 * 60   # change the '-4' according to your timezone
     return time.localtime(time.time() + UTC_OFFSET)
 
-def CheckLights(timer):
-
+def CheckSchedule(timer):
+    global reboot
     led = machine.Pin(15, machine.Pin.OUT)
     theTime = myTime()
-    print(theTime)
     if theTime[3] > 20 and theTime[3] < 23:
         led.on()
     else:
         led.off()
+    
+    if theTime[3] == 0 and theTime[4] < 1:
+        machine.reset()
 
 
 def TurnLightsOn():
@@ -97,7 +99,7 @@ pir = Pin(13, Pin.IN)
 pir.irq(trigger=Pin.IRQ_RISING, handler=handle_interrupt)
 
 timer = machine.Timer(0)  
-timer.init(period=10000, mode=machine.Timer.PERIODIC, callback=CheckLights)
+timer.init(period=50000, mode=machine.Timer.PERIODIC, callback=CheckSchedule)
 
 try:
     os.mkdir(path)
