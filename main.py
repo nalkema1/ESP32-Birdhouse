@@ -42,3 +42,8 @@ if hasUpdated:
 else:
     del(otaUpdater)
     gc.collect()
+
+def startApp():
+    import app.birdhouse
+
+startApp()
