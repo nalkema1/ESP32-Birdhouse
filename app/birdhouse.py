@@ -7,9 +7,12 @@ import ujson
 import camera
 import binascii
 import os
+import esp32
+
 path = '/photos'
 motion = False
 reboot = False
+start_time = time.ticks_us()
 dict = {}
 
 def myTime():
@@ -17,7 +20,7 @@ def myTime():
     return time.localtime(time.time() + UTC_OFFSET)
 
 def CheckSchedule(timer):
-    global reboot
+    
     led = machine.Pin(15, machine.Pin.OUT)
     theTime = myTime()
     if theTime[3] > 20 and theTime[3] < 23:
@@ -28,6 +31,11 @@ def CheckSchedule(timer):
     if theTime[3] == 0 and theTime[4] < 1:
         machine.reset()
 
+    if time.ticks_diff(time.ticks_ms(), start_time) > 600000:
+        # goto deepsleep if there has been not activity in 10 minutes
+        wake1 = Pin(13, mode = Pin.IN)
+        esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
+        machine.deepsleep()
 
 def TurnLightsOn():
     
@@ -42,9 +50,12 @@ def TurnLightsOff():
 def handle_interrupt(pin):
     global motion
     global cycle
-
+    global start_time
     motion = True
 
+    machine.freq(160000000)
+    #reset the sleep timer
+    start_time = time.ticks_us()
     camera.framesize(12) # between 0 and 13
     camera.quality(63) # between 9 and 64
     camera.contrast(0) # between -3 and 3
@@ -94,6 +105,9 @@ def handle_interrupt(pin):
     else:
         print("Photo failed")
 
+    machine.freq(40000000)
+
+
 
 pir = Pin(13, Pin.IN)
 pir.irq(trigger=Pin.IRQ_RISING, handler=handle_interrupt)
@@ -123,6 +137,7 @@ try:
 except:
     machine.reset()
 
+machine.freq(40000000)
 while True:
 
     if motion:
