@@ -12,7 +12,7 @@ import esp32
 path = '/photos'
 motion = False
 reboot = False
-start_time = time.ticks_ms() 
+start_time = time.ticks_ms()
 dict = {}
 
 def setCPU(size):
@@ -46,13 +46,10 @@ def CheckSchedule(timer):
     time_now = time.ticks_ms()
     time_past = time.ticks_diff(time_now, start_time)
     print("time since last movement ", time_now, start_time, time_past)
-    
-    if time_past> 180000:
-        # goto deepsleep if there has been not activity in 1 minutes
-        wake1 = Pin(13, mode = Pin.IN)
-        esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
+    if time_past> 10000:
+        # goto deepsleep if there has been not activity in 10 seconds
         print("Going to sleep.. ")
-        machine.deepsleep()
+        machine.lightsleep()
 
 def TurnLightsOn():
     
@@ -127,9 +124,11 @@ def handle_interrupt(pin):
 
 pir = Pin(13, Pin.IN)
 pir.irq(trigger=Pin.IRQ_RISING, handler=handle_interrupt)
+wake1 = Pin(13, mode = Pin.IN)
+esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
 
 timer = machine.Timer(0)  
-timer.init(period=50000, mode=machine.Timer.PERIODIC, callback=CheckSchedule)
+timer.init(period=5000, mode=machine.Timer.PERIODIC, callback=CheckSchedule)
 
 try:
     os.mkdir(path)
