@@ -31,8 +31,8 @@ def CheckSchedule(timer):
     if theTime[3] == 0 and theTime[4] < 1:
         machine.reset()
 
-    if time.ticks_diff(time.ticks_ms(), start_time) > 600000:
-        # goto deepsleep if there has been not activity in 10 minutes
+    if time.ticks_diff(time.ticks_ms(), start_time) > 300000:
+        # goto deepsleep if there has been not activity in 5 minutes
         wake1 = Pin(13, mode = Pin.IN)
         esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
         machine.deepsleep()
@@ -105,7 +105,7 @@ def handle_interrupt(pin):
     else:
         print("Photo failed")
 
-    machine.freq(40000000)
+    machine.freq(80000000)
 
 
 
@@ -137,7 +137,7 @@ try:
 except:
     machine.reset()
 
-machine.freq(40000000)
+machine.freq(80000000)
 while True:
 
     if motion:
