@@ -46,6 +46,7 @@ def CheckSchedule(timer):
     time_now = time.ticks_ms()
     time_past = time.ticks_diff(time_now, start_time)
     print("time since last movement ", time_now, start_time, time_past)
+    
     if time_past> 180000:
         # goto deepsleep if there has been not activity in 1 minutes
         wake1 = Pin(13, mode = Pin.IN)
