@@ -15,6 +15,19 @@ reboot = False
 start_time = time.ticks_us()
 dict = {}
 
+def setCPU(size):
+    if size == 3:
+        print("CPU set to 16 mhz")
+        machine.freq(160000000)
+        return
+    if size == 2:
+        print("CPU set to 8 mhz")
+        machine.freq(80000000)
+        return
+    else:
+        print("CPU set to 4 mhz")
+        machine.freq(40000000)
+
 def myTime():
     UTC_OFFSET = -4 * 60 * 60   # change the '-4' according to your timezone
     return time.localtime(time.time() + UTC_OFFSET)
@@ -31,10 +44,13 @@ def CheckSchedule(timer):
     if theTime[3] == 0 and theTime[4] < 1:
         machine.reset()
 
-    if time.ticks_diff(time.ticks_ms(), start_time) > 300000:
-        # goto deepsleep if there has been not activity in 5 minutes
+    time_past = time.ticks_diff(time.ticks_ms(), start_time)
+    print("time since last movement ", time_past)
+    if time_past> 180000:
+        # goto deepsleep if there has been not activity in 1 minutes
         wake1 = Pin(13, mode = Pin.IN)
         esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
+        print("Going to sleep.. ")
         machine.deepsleep()
 
 def TurnLightsOn():
@@ -53,7 +69,7 @@ def handle_interrupt(pin):
     global start_time
     motion = True
 
-    machine.freq(160000000)
+
     #reset the sleep timer
     start_time = time.ticks_us()
     camera.framesize(12) # between 0 and 13
@@ -77,6 +93,7 @@ def handle_interrupt(pin):
         camera.deinit()   
         return
 
+    setCPU(3)
     led = machine.Pin(4, machine.Pin.OUT)
     led.on()
     buf = camera.capture()
@@ -95,18 +112,16 @@ def handle_interrupt(pin):
         #     datafile.write(binascii.b2a_base64(buf))
         # datafile.close()
 
-        start = time.ticks_ms()
+
         dict["photo"] = binascii.b2a_base64(buf)
         encoded = ujson.dumps(dict)
         response = urequests.post("https://birdhouse.azurewebsites.net/api/birdhouse", headers = {'content-type': 'application/json'}, data = encoded)
-        end = time.ticks_ms()
-        print("total time (ms) ", end-start)
-        print(response.text)
+
+        print("Photo saved to Azure service ", response.text)
     else:
         print("Photo failed")
 
-    machine.freq(80000000)
-
+    setCPU(2)
 
 
 pir = Pin(13, Pin.IN)
@@ -137,11 +152,11 @@ try:
 except:
     machine.reset()
 
-machine.freq(80000000)
-while True:
+setCPU(2)
+# while True:
 
-    if motion:
-        print("Motion detected - in main loop")
-        motion = False
+#     if motion:
+#         print("Motion detected - in main loop")
+#         motion = False
 
 
