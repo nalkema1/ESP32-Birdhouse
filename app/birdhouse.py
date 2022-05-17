@@ -12,7 +12,7 @@ import esp32
 path = '/photos'
 motion = False
 reboot = False
-start_time = time.ticks_ms()
+start_time = time.ticks_ms() 
 dict = {}
 
 def setCPU(size):
