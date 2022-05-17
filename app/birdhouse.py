@@ -12,7 +12,7 @@ import esp32
 path = '/photos'
 motion = False
 reboot = False
-start_time = time.ticks_us()
+start_time = time.ticks_ms()
 dict = {}
 
 def setCPU(size):
@@ -43,9 +43,9 @@ def CheckSchedule(timer):
     
     if theTime[3] == 0 and theTime[4] < 1:
         machine.reset()
-
-    time_past = time.ticks_diff(time.ticks_ms(), start_time)
-    print("time since last movement ", time_past)
+    time_now = time.ticks_ms()
+    time_past = time.ticks_diff(time_now, start_time)
+    print("time since last movement ", time_now, start_time, time_past)
     if time_past> 180000:
         # goto deepsleep if there has been not activity in 1 minutes
         wake1 = Pin(13, mode = Pin.IN)
@@ -71,7 +71,7 @@ def handle_interrupt(pin):
 
 
     #reset the sleep timer
-    start_time = time.ticks_us()
+    start_time = time.ticks_ms()
     camera.framesize(12) # between 0 and 13
     camera.quality(63) # between 9 and 64
     camera.contrast(0) # between -3 and 3
@@ -153,10 +153,10 @@ except:
     machine.reset()
 
 setCPU(2)
-# while True:
+while True:
 
-#     if motion:
-#         print("Motion detected - in main loop")
-#         motion = False
+    if motion:
+        print("Motion detected - in main loop")
+        motion = False
 
 
