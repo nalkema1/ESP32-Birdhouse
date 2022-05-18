@@ -13,6 +13,7 @@ path = '/photos'
 motion = False
 reboot = False
 start_time = time.ticks_ms()
+power_on = time.ticks_ms()
 dict = {}
 
 def setCPU(size):
@@ -41,9 +42,10 @@ def CheckSchedule(timer):
     else:
         led.off()
     
-    if theTime[3] == 0 and theTime[4] < 1:
-        machine.reset()
     time_now = time.ticks_ms()
+    if time.ticks_diff(time_now, power_on) > 3.6e+6:
+        machine.reset()
+        
     time_past = time.ticks_diff(time_now, start_time)
     print("time since last movement ", time_now, start_time, time_past)
     if time_past> 10000:
@@ -110,11 +112,21 @@ def handle_interrupt(pin):
         #     datafile.write(binascii.b2a_base64(buf))
         # datafile.close()
 
+        from app.wifi_manager import WifiManager
+
+        wm = WifiManager()
+        if not wm.is_connected():
+            for retries in range(5):
+                wm.connect()
+                if wm.is_connected():
+                    break
+                else:
+                    time.sleep(1)
 
         dict["photo"] = binascii.b2a_base64(buf)
         encoded = ujson.dumps(dict)
         response = urequests.post("https://birdhouse.azurewebsites.net/api/birdhouse", headers = {'content-type': 'application/json'}, data = encoded)
-
+        start_time = time.ticks_ms()
         print("Photo saved to Azure service ", response.text)
     else:
         print("Photo failed")
@@ -151,6 +163,13 @@ try:
     camera.deinit()
 except:
     machine.reset()
+
+# signal that device is ready
+led = machine.Pin(4, machine.Pin.OUT)
+for i in range(4)
+    led.on()
+    time.sleep(.3)
+    led.off()
 
 setCPU(2)
 while True:
