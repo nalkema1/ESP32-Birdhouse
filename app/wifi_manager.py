@@ -13,8 +13,13 @@ import utime
 class WifiManager:
 
     def __init__(self, ssid = 'WifiManager', password = 'wifimanager'):
+
+
+        wlan.config(reconnects = 5) # 5 tries max
         self.wlan_sta = network.WLAN(network.STA_IF)
+        self.wlan_sta.active(False)
         self.wlan_sta.active(True)
+        self.wlan.config(reconnects = 5) # 5 tries max
         self.wlan_ap = network.WLAN(network.AP_IF)
         
         # Avoids simple mistakes with wifi ssid and password lengths, but doesn't check for forbidden or unsupported characters.
