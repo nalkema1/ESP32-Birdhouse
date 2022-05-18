@@ -166,7 +166,7 @@ except:
 
 # signal that device is ready
 led = machine.Pin(4, machine.Pin.OUT)
-for i in range(4)
+for i in range(4):
     led.on()
     time.sleep(.3)
     led.off()
