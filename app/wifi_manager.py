@@ -14,8 +14,6 @@ class WifiManager:
 
     def __init__(self, ssid = 'WifiManager', password = 'wifimanager'):
 
-
-        wlan.config(reconnects = 5) # 5 tries max
         self.wlan_sta = network.WLAN(network.STA_IF)
         self.wlan_sta.active(False)
         self.wlan_sta.active(True)
