@@ -9,6 +9,7 @@ import binascii
 import os
 import esp32
 
+
 path = '/photos'
 motion = False
 reboot = False
@@ -67,9 +68,13 @@ def handle_interrupt(pin):
     global motion
     global cycle
     global start_time
+    global timer
+    global wake
     motion = True
 
-
+    machine.disable_irq()
+    timer.deint()
+ 
     #reset the sleep timer
     start_time = time.ticks_ms()
     camera.framesize(12) # between 0 and 13
@@ -90,7 +95,8 @@ def handle_interrupt(pin):
     try:
         camera.init(0, format=camera.JPEG)
     except:
-        camera.deinit()   
+        camera.deinit()
+        machine.reset()   
         return
 
     setCPU(3)
@@ -131,6 +137,12 @@ def handle_interrupt(pin):
     else:
         print("Photo failed")
 
+    wake1 = Pin(13, mode = Pin.IN)
+    esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
+
+    timer = machine.Timer(0)  
+    timer.init(period=20000, mode=machine.Timer.PERIODIC, callback=CheckSchedule)
+
     setCPU(2)
 
 
@@ -140,7 +152,7 @@ wake1 = Pin(13, mode = Pin.IN)
 esp32.wake_on_ext0(pin = wake1, level = esp32.WAKEUP_ANY_HIGH)
 
 timer = machine.Timer(0)  
-timer.init(period=5000, mode=machine.Timer.PERIODIC, callback=CheckSchedule)
+timer.init(period=20000, mode=machine.Timer.PERIODIC, callback=CheckSchedule)
 
 try:
     os.mkdir(path)
@@ -165,11 +177,12 @@ except:
     machine.reset()
 
 # signal that device is ready
-led = machine.Pin(4, machine.Pin.OUT)
+
 for i in range(4):
-    led.on()
+    TurnLightsOn()
     time.sleep(.3)
-    led.off()
+    TurnLightsOff()
+    time.sleep(.3)
 
 setCPU(2)
 while True:
