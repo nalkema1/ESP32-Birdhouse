@@ -45,7 +45,7 @@ class WifiManager:
         self.reboot = False
 
 
-    def connect(self):
+    def connect(self, prod=True):
         if self.wlan_sta.isconnected():
             print('\nAlready Connected! Network information:', self.wlan_sta.ifconfig())
             return
@@ -57,7 +57,8 @@ class WifiManager:
                 if self.__WifiConnect(ssid, password):
                     return
         print('Could not connect to any WiFi network. Starting the configuration portal...')
-        self.__WebServer()
+        if prod:
+            self.__WebServer()
         
     
     def disconnect(self):

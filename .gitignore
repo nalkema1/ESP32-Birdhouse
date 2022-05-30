@@ -1,6 +1,7 @@
 # Custom for this project
 webrepl_cfg.py
 *.ipynb
+photos/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
