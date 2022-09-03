@@ -1,6 +1,10 @@
+print("starting birdhouse engine...")
+
 import time
 from app.timesync import ntpsync
 from app.timesync import myTime
+from app.timesync import myTimeAsDict
+from app.ota_updater import OTAUpdater
 from app.wifi_manager import WifiManager
 import machine
 from machine import Pin
@@ -13,7 +17,8 @@ import os
 import esp32
 import gc
 
-prod = False # run without network
+
+prod = True # run without network
 buf = None
 path = '/photos'
 motion = False

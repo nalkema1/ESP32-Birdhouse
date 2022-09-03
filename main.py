@@ -1,6 +1,4 @@
-
-
 def startApp():
-    import app.birdhouse
+    import app.start
 
 startApp()
